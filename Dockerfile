@@ -2,19 +2,19 @@ FROM alpine:3.8
 
 MAINTAINER Gianmarco Bruno "gianmarco.bruno@ericsson.com"
 
-# not /opt/libyang otherwise git refuses to clone ..
-WORKDIR /opt
-
 # toolchain
-RUN apk update && apk add binutils cmake make libgcc gcc g++
+RUN apk update && apk add --no-cache binutils cmake make libgcc gcc g++
 
-RUN apk update && apk add musl-dev
-RUN apk update && apk add git
-RUN apk update && apk add pcre pcre-dev
-RUN cd /opt && \
+RUN apk update && apk add --no-cache musl-dev
+RUN apk update && apk add --no-cache git
+RUN apk update && apk add --no-cache pcre pcre-dev
+RUN mkdir /opt && cd /opt && \
     git clone https://github.com/CESNET/libyang.git
-RUN cd libyang && mkdir build && cd build && cmake .. && \
+RUN cd /opt/libyang && mkdir build && cd build && cmake .. && \
     make && make install
+
+#RUN cd /opt/libyang && \
+#    rm -rf .git tests swig src build/CMakefiles
 
 # suppress annoying message at startup
 RUN mkdir /root/.yanglint
@@ -22,4 +22,6 @@ RUN mkdir /root/.yanglint
 # to make the build target directory visible
 ENV PATH="/opt/libyang/build:${PATH}"
 
+# this is where the volume will be mounted
+WORKDIR /opt/yanglint
 ENTRYPOINT ["yanglint"]
