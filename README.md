@@ -3,4 +3,4 @@ This docker image provides the YANG tool yanglint (https://github.com/CESNET/lib
 
 The image is based on alpine and builds yanglint from within the container. 
 
-Usage: ``docker run --rm -it -v `pwd`:`pwd` docker-yanglint``
+Usage: ``run-i.sh`` to start the interactive yanglint CLI.
