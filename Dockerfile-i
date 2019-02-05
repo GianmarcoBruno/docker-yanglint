@@ -2,17 +2,15 @@ FROM alpine:3.8
 
 MAINTAINER Gianmarco Bruno "gianmarco.bruno@ericsson.com"
 
-ENV VERSION=v0.16-r3
+ENV VERSION=0.3
+ENV LIBYANG_VERSION=v0.16-r3
 
 # toolchain
-RUN apk update && apk add --no-cache binutils cmake make libgcc gcc g++
-
-RUN apk update && apk add --no-cache musl-dev
-RUN apk update && apk add --no-cache git
-RUN apk update && apk add --no-cache pcre pcre-dev
+RUN apk update && apk add --no-cache binutils cmake make libgcc gcc
+RUN apk update && apk add --no-cache musl-dev git pcre pcre-dev
 RUN mkdir /opt && cd /opt && \
     git clone https://github.com/CESNET/libyang.git && \
-    cd libyang && git checkout ${VERSION} && \
+    cd libyang && git checkout ${LIBYANG_VERSION} && \
     mkdir build && cd build && cmake .. && \
     make && make install
 
