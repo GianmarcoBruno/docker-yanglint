@@ -1,25 +1,35 @@
-FROM alpine:3.8
+FROM alpine:3.8 as mybuilder
 
 MAINTAINER Gianmarco Bruno "gianmarco.bruno@ericsson.com"
 
-ENV VERSION=0.3
+ENV VERSION=0.4
 ENV LIBYANG_VERSION=v0.16-r3
 
 # toolchain
-RUN apk update && apk add --no-cache binutils cmake make libgcc gcc
-RUN apk update && apk add --no-cache musl-dev git pcre pcre-dev
+RUN apk update && apk add binutils cmake make libgcc gcc
+RUN apk update && apk add musl-dev git pcre pcre-dev
 RUN mkdir /opt && cd /opt && \
-    git clone https://github.com/CESNET/libyang.git && \
-    cd libyang && git checkout ${LIBYANG_VERSION} && \
+    git clone https://github.com/CESNET/libyang.git
+RUN cd /opt/libyang && git checkout ${LIBYANG_VERSION} && \
     mkdir build && cd build && cmake .. && \
     make && make install
 
-# suppress annoying message at startup
+# builder pattern
+
+FROM alpine:3.8
+
 RUN mkdir /root/.yanglint
+#RUN mkdir -p /opt/yanglint/build
 
 # to make the build target directory visible
 ENV PATH="/opt/libyang/build:${PATH}"
 
-# this is where the volume will be mounted
+COPY --from=mybuilder /opt/libyang/build/* /opt/libyang/build/
+# yanglint libraries
+COPY --from=mybuilder /usr/local/lib64/* /usr/local/lib64/
+COPY --from=mybuilder /usr/local/lib64/libyang/extensions /usr/local/lib64/libyang/extensions
+COPY --from=mybuilder /usr/local/lib64/libyang/user_types /usr/local/lib64/libyang/user_types
+# pcre runtime libraries
+COPY --from=mybuilder /usr/lib/* /usr/lib/
 WORKDIR /opt/yanglint
 ENTRYPOINT ["yanglint"]
