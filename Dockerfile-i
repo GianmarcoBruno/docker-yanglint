@@ -11,7 +11,7 @@ RUN apk update && apk add musl-dev git pcre pcre-dev
 RUN mkdir /opt && cd /opt && \
     git clone https://github.com/CESNET/libyang.git
 RUN cd /opt/libyang && git checkout ${LIBYANG_VERSION} && \
-    mkdir build && cd build && cmake .. && \
+    mkdir build && cd build && cmake -D CMAKE_BUILD_TYPE:String="Release" .. && \
     make && make install
 
 # builder pattern
