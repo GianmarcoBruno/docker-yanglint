@@ -18,18 +18,22 @@ RUN cd /opt/libyang && git checkout ${LIBYANG_VERSION} && \
 
 FROM alpine:3.8
 
+# prevent startup message
 RUN mkdir /root/.yanglint
-#RUN mkdir -p /opt/yanglint/build
 
 # to make the build target directory visible
 ENV PATH="/opt/libyang/build:${PATH}"
 
 COPY --from=mybuilder /opt/libyang/build/* /opt/libyang/build/
+
 # yanglint libraries
 COPY --from=mybuilder /usr/local/lib64/* /usr/local/lib64/
 COPY --from=mybuilder /usr/local/lib64/libyang/extensions /usr/local/lib64/libyang/extensions
 COPY --from=mybuilder /usr/local/lib64/libyang/user_types /usr/local/lib64/libyang/user_types
+
 # pcre runtime libraries
 RUN apk update && apk add pcre pcre-dev
+
+# target location for bind mount in the run script
 WORKDIR /opt/yanglint
 ENTRYPOINT ["yanglint"]
