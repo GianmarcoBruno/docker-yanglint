@@ -30,6 +30,6 @@ COPY --from=mybuilder /usr/local/lib64/* /usr/local/lib64/
 COPY --from=mybuilder /usr/local/lib64/libyang/extensions /usr/local/lib64/libyang/extensions
 COPY --from=mybuilder /usr/local/lib64/libyang/user_types /usr/local/lib64/libyang/user_types
 # pcre runtime libraries
-COPY --from=mybuilder /usr/lib/* /usr/lib/
+RUN apk update && apk add pcre pcre-dev
 WORKDIR /opt/yanglint
 ENTRYPOINT ["yanglint"]
