@@ -18,8 +18,9 @@ RUN cd /opt/libyang && git checkout ${LIBYANG_VERSION} && \
 
 FROM alpine:3.8
 
-# prevent startup message
-RUN mkdir /root/.yanglint
+# prevent startup message "No history saved."
+# we want that positive validation corresponds to no messages at all
+RUN mkdir -p /root/.yanglint/history
 
 # to make the build target directory visible
 ENV PATH="/opt/libyang/build:${PATH}"
