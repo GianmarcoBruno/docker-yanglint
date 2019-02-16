@@ -10,7 +10,12 @@ RUN apk update && apk add binutils cmake make libgcc gcc
 RUN apk update && apk add musl-dev git pcre pcre-dev
 RUN mkdir /opt && cd /opt && \
     git clone https://github.com/CESNET/libyang.git
+
+# we want that positive validation corresponds to no messages at all
+# so to suppress them we remove lines before building yanglint
 RUN cd /opt/libyang && git checkout ${LIBYANG_VERSION} && \
+    sed -i '/load_config();/d' tools/lint/main.c && \
+    sed -i '/store_config();/d' tools/lint/main.c && \
     mkdir build && cd build && cmake -D CMAKE_BUILD_TYPE:String="Release" .. && \
     make && make install
 
@@ -18,9 +23,7 @@ RUN cd /opt/libyang && git checkout ${LIBYANG_VERSION} && \
 
 FROM alpine:3.8
 
-# prevent startup message "No history saved."
-# we want that positive validation corresponds to no messages at all
-RUN mkdir -p /root/.yanglint/history
+RUN mkdir -p /home/app/.yanglint/
 
 # to make the build target directory visible
 ENV PATH="/opt/libyang/build:${PATH}"
@@ -34,6 +37,9 @@ COPY --from=mybuilder /usr/local/lib64/libyang/user_types /usr/local/lib64/libya
 
 # pcre runtime libraries
 RUN apk update && apk add pcre pcre-dev
+
+RUN adduser -D -H app
+USER app
 
 # target location for bind mount in the run script
 WORKDIR /opt/yanglint
