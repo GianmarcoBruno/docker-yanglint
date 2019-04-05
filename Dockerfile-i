@@ -2,18 +2,19 @@ FROM alpine:3.8 as mybuilder
 
 MAINTAINER Gianmarco Bruno "gianmarco.bruno@ericsson.com"
 
-ENV VERSION=0.4
-ENV LIBYANG_VERSION=v0.16-r3
+ENV VERSION=0.5
+ENV LIBYANG_VERSION=v1.0-r2
 
 # toolchain
 RUN apk update && apk add binutils cmake make libgcc gcc
 RUN apk update && apk add musl-dev git pcre pcre-dev
 RUN mkdir /opt && cd /opt && \
-    git clone https://github.com/CESNET/libyang.git
+    git clone https://github.com/CESNET/libyang.git && \
+    cd libyang && git checkout tags/${LIBYANG_VERSION}
 
 # we want that positive validation corresponds to no messages at all
 # so to suppress them we remove lines before building yanglint
-RUN cd /opt/libyang && git checkout ${LIBYANG_VERSION} && \
+RUN cd /opt/libyang && git checkout ${LIBYANG_VERSION} -b ${LIBYANG_VERSION} && \
     sed -i '/load_config();/d' tools/lint/main.c && \
     sed -i '/store_config();/d' tools/lint/main.c && \
     mkdir build && cd build && cmake -D CMAKE_BUILD_TYPE:String="Release" .. && \
