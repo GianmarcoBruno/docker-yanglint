@@ -2,7 +2,7 @@ FROM alpine:3.8 as mybuilder
 
 MAINTAINER Gianmarco Bruno "gianmarco.bruno@ericsson.com"
 
-ENV VERSION=0.5
+ENV VERSION=0.6
 ENV LIBYANG_VERSION=v1.0-r2
 
 # toolchain
@@ -43,5 +43,5 @@ RUN adduser -D -H app
 USER app
 
 # target location for bind mount in the run script
-WORKDIR /opt/yanglint
+WORKDIR /home/app
 ENTRYPOINT ["yanglint"]
